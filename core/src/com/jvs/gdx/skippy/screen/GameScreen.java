@@ -25,6 +25,9 @@ public class GameScreen implements Screen {
     private Skippy skippy;
     private Array<Flower> flowers = new Array<Flower>();
 
+    private float skippyStartX;
+    private float skippyStartY;
+
     public GameScreen() {
 
     }
@@ -32,13 +35,16 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         camera = new OrthographicCamera();
-        camera.zoom = 1.30f;
-        camera.update();
+        //camera.zoom = 1.30f;
+        //camera.update();
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         shapeRenderer = new ShapeRenderer();
 
+        skippyStartX = GameConfig.WORLD_WIDTH / 4f;
+        skippyStartY = GameConfig.WORLD_HEIGHT / 2f;
+
         skippy = new Skippy();
-        skippy.setPosition(GameConfig.WORLD_WIDTH / 4f, GameConfig.WORLD_HEIGHT / 2f);
+        skippy.setPosition(skippyStartX, skippyStartY);
 
         createNewFlower();
     }
@@ -96,10 +102,17 @@ public class GameScreen implements Screen {
 
         // flowers
         for (Flower flower : flowers) {
-            Circle flowerCollisionCircle = flower.getCollisionCircle();
-            shapeRenderer.circle(flowerCollisionCircle.x, flowerCollisionCircle.y, flowerCollisionCircle.radius, 30);
-            Rectangle flowerCollisionRectangle = flower.getCollisionRectangle();
-            shapeRenderer.rect(flowerCollisionRectangle.x, flowerCollisionRectangle.y, flowerCollisionRectangle.width, flowerCollisionRectangle.height);
+            // bottom
+            Circle bottomCollisionCircle = flower.getBottomCollisionCircle();
+            shapeRenderer.circle(bottomCollisionCircle.x, bottomCollisionCircle.y, bottomCollisionCircle.radius, 30);
+            Rectangle bottomCollisionRectangle = flower.getBottomCollisionRectangle();
+            shapeRenderer.rect(bottomCollisionRectangle.x, bottomCollisionRectangle.y, bottomCollisionRectangle.width, bottomCollisionRectangle.height);
+
+            // top
+            Circle topCollisionCircle = flower.getTopCollisionCircle();
+            shapeRenderer.circle(topCollisionCircle.x, topCollisionCircle.y, topCollisionCircle.radius, 30);
+            Rectangle topCollisionRectangle = flower.getTopCollisionRectangle();
+            shapeRenderer.rect(topCollisionRectangle.x, topCollisionRectangle.y, topCollisionRectangle.width, topCollisionRectangle.height);
         }
     }
 
@@ -118,6 +131,8 @@ public class GameScreen implements Screen {
 
         spawnFlower();
         removePassedFlowers();
+
+        checkCollision();
     }
 
     private void spawnFlower() {
@@ -138,7 +153,7 @@ public class GameScreen implements Screen {
 
     private void createNewFlower() {
         Flower flower = new Flower();
-        flower.setPosition(GameConfig.WORLD_WIDTH);
+        flower.setPosition(GameConfig.WORLD_WIDTH + Flower.WIDTH);
         flowers.add(flower);
     }
 
@@ -149,5 +164,18 @@ public class GameScreen implements Screen {
                 flowers.removeValue(firstFlower, true);
             }
         }
+    }
+
+    private void checkCollision(){
+        for (Flower flower : flowers){
+            if(flower.isSkippyColliding(skippy)){
+                restart();
+            }
+        }
+    }
+
+    private void restart(){
+        skippy.setPosition(skippyStartX, skippyStartY);
+        flowers.clear();
     }
 }
