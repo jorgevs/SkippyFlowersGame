@@ -98,19 +98,19 @@ public class Flower {
         return x;
     }
 
-    public boolean isSkippyColliding(Skippy skippy){
+    public boolean isSkippyColliding(Skippy skippy) {
         return overlapsTopFlower(skippy) || overlapsBottomFlower(skippy);
     }
 
-    public boolean isSkippyCollidingWithSensor(Skippy skippy){
+    public boolean isSkippyCollidingWithSensor(Skippy skippy) {
         return Intersector.overlaps(skippy.getCollisionCircle(), sensorRectangle);
     }
 
-    public void collectScore(){
+    public void collectScore() {
         scoreCollected = true;
     }
 
-    public boolean isScoreCollected(){
+    public boolean isScoreCollected() {
         return scoreCollected;
     }
 
@@ -130,13 +130,13 @@ public class Flower {
         sensorRectangle.setX(newX);
     }
 
-    private boolean overlapsTopFlower(Skippy skippy){
+    private boolean overlapsTopFlower(Skippy skippy) {
         Circle skippyCollisionCircle = skippy.getCollisionCircle();
         return Intersector.overlaps(skippyCollisionCircle, topCollisionCircle) ||
                 Intersector.overlaps(skippyCollisionCircle, topCollisionRectangle);
     }
 
-    private boolean overlapsBottomFlower(Skippy skippy){
+    private boolean overlapsBottomFlower(Skippy skippy) {
         Circle skippyCollisionCircle = skippy.getCollisionCircle();
         return Intersector.overlaps(skippyCollisionCircle, bottomCollisionCircle) ||
                 Intersector.overlaps(skippyCollisionCircle, bottomCollisionRectangle);

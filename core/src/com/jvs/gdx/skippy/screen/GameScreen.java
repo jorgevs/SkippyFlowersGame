@@ -22,8 +22,6 @@ import com.jvs.gdx.skippy.config.GameConfig;
 import com.jvs.gdx.skippy.entity.Flower;
 import com.jvs.gdx.skippy.entity.Skippy;
 
-import javax.swing.text.View;
-
 
 public class GameScreen implements Screen {
 

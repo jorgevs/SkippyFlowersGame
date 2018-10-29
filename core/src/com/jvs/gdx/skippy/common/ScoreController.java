@@ -3,15 +3,15 @@ package com.jvs.gdx.skippy.common;
 public class ScoreController {
     private int score;
 
-    public ScoreController(){
+    public ScoreController() {
 
     }
 
-    public void incrementScore(){
+    public void incrementScore() {
         score++;
     }
 
-    public void resetScore(){
+    public void resetScore() {
         score = 0;
     }
 
@@ -19,7 +19,7 @@ public class ScoreController {
         return score;
     }
 
-    public String getScoreString(){
+    public String getScoreString() {
         return Integer.toString(score);
     }
 }
