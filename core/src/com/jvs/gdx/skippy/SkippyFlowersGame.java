@@ -21,6 +21,7 @@ public class SkippyFlowersGame extends Game {
         spriteBatch = new SpriteBatch();
 
         assetManager.load(AssetDescriptors.SCORE_FONT);
+        assetManager.load(AssetDescriptors.GAME_PLAY);
 
         // blocks until all assets are loaded
         assetManager.finishLoading();

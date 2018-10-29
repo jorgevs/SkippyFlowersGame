@@ -19,6 +19,7 @@ public class Flower {
     private static final float FLOWER_GAP = 12f;  // world units
 
     public static final float WIDTH = COLLISION_CIRCLE_RADIUS * 2;  // world units
+    public static final float HEIGHT = COLLISION_RECT_HEIGHT;  // world units
 
 
     private final Circle bottomCollisionCircle;

@@ -19,6 +19,7 @@ public class GameConfig {
 
     public static final float GAP_BETWEEN_FLOWERS = 9f;  // world units
 
+    public static final float GROUND_HEIGHT = 5f;  // world units
 
     private GameConfig() {
     }
