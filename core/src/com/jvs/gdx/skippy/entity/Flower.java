@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.jvs.gdx.skippy.config.GameConfig;
 
 public class Flower {
 
@@ -11,6 +12,7 @@ public class Flower {
     private static final float COLLISION_RECT_HALF_WIDTH = COLLISION_RECT_WIDTH / 2f;  // world units
     private static final float COLLISION_RECT_HEIGHT = 25f;     // world units
     private static final float COLLISION_CIRCLE_RADIUS = 1.5f;     // world units
+    private static final float SENSOR_RECT_WIDTH = 0.05f; // world units
 
     private static final float MAX_SPEED = 8f;     // world units
     private static final float HEIGHT_OFFSET = -20f;  // world units
@@ -25,12 +27,17 @@ public class Flower {
     private final Circle topCollisionCircle;
     private final Rectangle topCollisionRectangle;
 
+    private final Rectangle sensorRectangle;
+
     private float x;
     private float y;
+
+    private boolean scoreCollected;
 
     public Flower() {
         y = MathUtils.random(HEIGHT_OFFSET);
 
+        // bottom
         bottomCollisionRectangle = new Rectangle(x, y, COLLISION_RECT_WIDTH, COLLISION_RECT_HEIGHT);
         bottomCollisionCircle = new Circle(
                 x + COLLISION_RECT_HALF_WIDTH,
@@ -38,6 +45,7 @@ public class Flower {
                 COLLISION_CIRCLE_RADIUS
         );
 
+        // top
         float topY = bottomCollisionCircle.y + FLOWER_GAP;
         topCollisionRectangle = new Rectangle(x, topY, COLLISION_RECT_WIDTH, COLLISION_RECT_HEIGHT);
         topCollisionCircle = new Circle(
@@ -45,6 +53,9 @@ public class Flower {
                 topY,
                 COLLISION_CIRCLE_RADIUS
         );
+
+        // sensor
+        sensorRectangle = new Rectangle(x + COLLISION_RECT_HALF_WIDTH, 0, SENSOR_RECT_WIDTH, GameConfig.WORLD_HEIGHT);
     }
 
     public void update(float delta) {
@@ -60,6 +71,7 @@ public class Flower {
         this.x = x;
         updateCollisionCircle();
         updateCollisionRectangle();
+        updateSensorRectangle();
     }
 
     public Circle getBottomCollisionCircle() {
@@ -78,12 +90,28 @@ public class Flower {
         return topCollisionRectangle;
     }
 
+    public Rectangle getSensorRectangle() {
+        return sensorRectangle;
+    }
+
     public float getX() {
         return x;
     }
 
     public boolean isSkippyColliding(Skippy skippy){
         return overlapsTopFlower(skippy) || overlapsBottomFlower(skippy);
+    }
+
+    public boolean isSkippyCollidingWithSensor(Skippy skippy){
+        return Intersector.overlaps(skippy.getCollisionCircle(), sensorRectangle);
+    }
+
+    public void collectScore(){
+        scoreCollected = true;
+    }
+
+    public boolean isScoreCollected(){
+        return scoreCollected;
     }
 
     private void updateCollisionCircle() {
@@ -95,6 +123,11 @@ public class Flower {
     private void updateCollisionRectangle() {
         bottomCollisionRectangle.setX(x);
         topCollisionRectangle.setX(x);
+    }
+
+    private void updateSensorRectangle() {
+        float newX = x + COLLISION_RECT_HALF_WIDTH;
+        sensorRectangle.setX(newX);
     }
 
     private boolean overlapsTopFlower(Skippy skippy){
