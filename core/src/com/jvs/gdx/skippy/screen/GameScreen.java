@@ -3,12 +3,12 @@ package com.jvs.gdx.skippy.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -52,6 +52,12 @@ public class GameScreen implements Screen {
 
     private float animationTimer;
 
+    private boolean changeScreen;
+
+    private Sound hit;
+    private Sound jump;
+    private Sound score;
+
     public GameScreen(SkippyFlowersGame skippyFlowersGame) {
         this.skippyFlowersGame = skippyFlowersGame;
         this.scoreController = skippyFlowersGame.getScoreController();
@@ -79,6 +85,10 @@ public class GameScreen implements Screen {
         topRegion = atlas.findRegion(RegionNames.TOP_FLOWER);
 
 
+        hit = assetManager.get(AssetDescriptors.HIT);
+        jump = assetManager.get(AssetDescriptors.JUMP);
+        score = assetManager.get(AssetDescriptors.SCORE);
+
         skippyStartX = GameConfig.WORLD_WIDTH / 4f;
         skippyStartY = GameConfig.WORLD_HEIGHT / 2f;
 
@@ -86,6 +96,8 @@ public class GameScreen implements Screen {
         skippy.setPosition(skippyStartX, skippyStartY);
 
         createNewFlower();
+
+        restart();
     }
 
     @Override
@@ -106,6 +118,11 @@ public class GameScreen implements Screen {
 
         viewport.apply();
         renderDebug();
+
+        if (changeScreen) {
+            scoreController.updateHighScore();
+            skippyFlowersGame.setScreen(new StartScreen(skippyFlowersGame));
+        }
     }
 
     @Override
@@ -176,6 +193,7 @@ public class GameScreen implements Screen {
         skippy.update(delta);
 
         if (Gdx.input.justTouched()) {
+            jump.play();
             skippy.flyUp();
         }
 
@@ -205,8 +223,15 @@ public class GameScreen implements Screen {
     }
 
     private void blockSkippyFromLeavingWorld() {
-        float newY = MathUtils.clamp(skippy.getY(), 0 + GameConfig.SKIPPY_HALF_SIZE, GameConfig.WORLD_HEIGHT - +GameConfig.SKIPPY_HALF_SIZE);
-        skippy.setY(newY);
+        float maxY = GameConfig.WORLD_HEIGHT - GameConfig.SKIPPY_HALF_SIZE;
+        float minY = GameConfig.GROUND_HEIGHT + GameConfig.SKIPPY_HALF_SIZE;
+
+        if (skippy.getY() > maxY) {
+            skippy.setY(maxY);
+        }
+        if (skippy.getY() < minY) {
+            restart();
+        }
     }
 
     private void createNewFlower() {
@@ -224,32 +249,35 @@ public class GameScreen implements Screen {
         }
     }
 
-    private void checkCollision(){
-        for (Flower flower : flowers){
-            if(flower.isSkippyColliding(skippy)){
-                restart();
+    private void checkCollision() {
+        for (Flower flower : flowers) {
+            if (flower.isSkippyColliding(skippy)) {
+                hit.play();
+                changeScreen = true;
             }
         }
     }
 
-    private void updateScore(){
-        if(flowers.size > 0) {
+    private void updateScore() {
+        if (flowers.size > 0) {
             Flower flower = flowers.first();
-            if(!flower.isScoreCollected() && flower.isSkippyCollidingWithSensor(skippy)){
+            if (!flower.isScoreCollected() && flower.isSkippyCollidingWithSensor(skippy)) {
+                score.play();
                 flower.collectScore();
                 scoreController.incrementScore();
             }
         }
     }
 
-    private void restart(){
+    private void restart() {
         skippy.setPosition(skippyStartX, skippyStartY);
         flowers.clear();
+
         scoreController.resetScore();
         animationTimer = 0;
     }
 
-    private void renderHud(){
+    private void renderHud() {
         spriteBatch.setProjectionMatrix(hudViewport.getCamera().combined);
         spriteBatch.begin();
 
@@ -258,7 +286,7 @@ public class GameScreen implements Screen {
         spriteBatch.end();
     }
 
-    private void drawHud(){
+    private void drawHud() {
         String scoreString = scoreController.getScoreString();
         layout.setText(font, scoreString);
 
@@ -268,7 +296,7 @@ public class GameScreen implements Screen {
         font.draw(spriteBatch, scoreString, scoreX, scoreY);
     }
 
-    private void renderGamePlay(){
+    private void renderGamePlay() {
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
@@ -277,9 +305,9 @@ public class GameScreen implements Screen {
         spriteBatch.end();
     }
 
-    private void drawGamePlay(){
+    private void drawGamePlay() {
         // background
-        spriteBatch.draw(backgroundRegion, 0,0, GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT);
+        spriteBatch.draw(backgroundRegion, 0, 0, GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT);
 
         // skippy
         TextureRegion skippyRegion = (TextureRegion) skippyAnimation.getKeyFrame(animationTimer);
@@ -289,7 +317,7 @@ public class GameScreen implements Screen {
                 GameConfig.SKIPPY_SIZE, GameConfig.SKIPPY_SIZE);
 
         // flowers
-        for (Flower flower: flowers){
+        for (Flower flower : flowers) {
             // bottom flower
             float bottomRegionX = flower.getBottomCollisionCircle().x - Flower.WIDTH / 2;
             float bottomRegionY = flower.getBottomCollisionRectangle().y + flower.getBottomCollisionCircle().radius;

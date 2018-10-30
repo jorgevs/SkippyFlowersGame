@@ -5,7 +5,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.jvs.gdx.skippy.assets.AssetDescriptors;
 import com.jvs.gdx.skippy.common.ScoreController;
-import com.jvs.gdx.skippy.screen.GameScreen;
+import com.jvs.gdx.skippy.screen.StartScreen;
 
 public class SkippyFlowersGame extends Game {
 
@@ -23,10 +23,14 @@ public class SkippyFlowersGame extends Game {
         assetManager.load(AssetDescriptors.SCORE_FONT);
         assetManager.load(AssetDescriptors.GAME_PLAY);
 
+        assetManager.load(AssetDescriptors.HIT);
+        assetManager.load(AssetDescriptors.JUMP);
+        assetManager.load(AssetDescriptors.SCORE);
+
         // blocks until all assets are loaded
         assetManager.finishLoading();
 
-        setScreen(new GameScreen(this));
+        setScreen(new StartScreen(this));
     }
 
     public ScoreController getScoreController() {
